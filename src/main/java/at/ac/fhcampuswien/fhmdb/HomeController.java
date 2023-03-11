@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb;
 
+import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.jfoenix.controls.JFXButton;
@@ -7,6 +8,7 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
@@ -14,10 +16,12 @@ import javafx.scene.control.TextField;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 
 public class HomeController implements Initializable {
     @FXML
     public JFXButton searchBtn;
+    public JFXButton resetBtn;
 
     @FXML
     public TextField searchField;
@@ -43,11 +47,40 @@ public class HomeController implements Initializable {
         movieListView.setItems(observableMovies);   // set data of observable list to list view
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
 
-        // TODO add genre filter items with genreComboBox.getItems().addAll(...)
         genreComboBox.setPromptText("Filter by Genre");
+        genreComboBox.getItems().addAll(Genre.values());
 
         // TODO add event handlers to buttons and call the regarding methods
         // either set event handlers in the fxml file (onAction) or add them here
+
+        // Search Button wird geklickt - Liste wird gefiltert
+        searchBtn.setOnAction(e -> {
+            Genre selectedGenre = (Genre) genreComboBox.getValue();
+            ObservableList<Movie> tempList = observableMovies;
+            if (selectedGenre != null) {
+                Predicate<Movie> genrePredicate = movie -> movie.getGenres().contains(selectedGenre);
+                tempList = tempList.filtered(genrePredicate);
+            }
+
+            String searchTerm = searchField.getText();
+            if (!searchTerm.isEmpty()) {
+                Predicate<Movie> searchPredicate = movie -> movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase());
+                tempList = tempList.filtered(searchPredicate);
+            }
+
+            movieListView.setItems(tempList);
+            movieListView.setCellFactory(movieListView -> new MovieCell());
+
+        });
+
+        // Reset Button wird geklickt - Alle Filter zurücksetzen
+        resetBtn.setOnAction(e -> {
+            movieListView.setItems(observableMovies);
+            movieListView.setCellFactory(movieListView -> new MovieCell());
+
+            genreComboBox.setValue(null);
+            searchField.setText("");
+        });
 
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> {
@@ -59,7 +92,6 @@ public class HomeController implements Initializable {
                 sortBtn.setText("Sort (asc)");
             }
         });
-
-
     }
+
 }
