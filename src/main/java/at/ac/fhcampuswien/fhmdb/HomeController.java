@@ -55,45 +55,62 @@ public class HomeController implements Initializable {
         searchBtn.setOnAction(e -> {
             Genre selectedGenre = (Genre) genreComboBox.getValue();
             String searchTerm = searchField.getText().toLowerCase();
-
-            // Create a new filtered list with the current observableMovies as the source list
-            FilteredList<Movie> filteredList = new FilteredList<>(observableMovies);
-
-            // Add a genre filter if a genre is selected
-            if (selectedGenre != null) {
-                filteredList.setPredicate(movie -> movie.getGenres().contains(selectedGenre));
-            }
-
-            // Add a title search filter if a search term is entered
-            if (!searchTerm.isEmpty()) {
-                filteredList.setPredicate(movie -> movie.getTitle().toLowerCase().contains(searchTerm));
-            }
-
-            // Set the filtered list as the data source for the list view
-            movieListView.setItems(filteredList);
-            movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
+            this.reset(true);
+            this.filterMovies(selectedGenre, searchTerm);
         });
 
         // Reset Button wird geklickt - Alle Filter zurücksetzen
         resetBtn.setOnAction(e -> {
-            movieListView.setItems(observableMovies);
-            movieListView.setCellFactory(movieListView -> new MovieCell());
-            genreComboBox.setValue(null);
-            searchField.setText("");
+            this.reset(false);
         });
 
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> {
-            if(sortBtn.getText().equals("Sort (asc)")) {
-                // Sort observableMovies ascending
-                FXCollections.sort(observableMovies, (m1, m2) -> m1.getTitle().compareToIgnoreCase(m2.getTitle()));
-                sortBtn.setText("Sort (desc)");
-            } else {
-                // Sort observableMovies descending
-                FXCollections.sort(observableMovies, (m1, m2) -> m2.getTitle().compareToIgnoreCase(m1.getTitle()));
-                sortBtn.setText("Sort (asc)");
-            }
+            this.sortMovies();
         });
+    }
+
+    private void sortMovies() {
+        if(sortBtn.getText().equals("Sort (asc)")) {
+            // Sort observableMovies ascending
+            FXCollections.sort(observableMovies, (m1, m2) -> m1.getTitle().compareToIgnoreCase(m2.getTitle()));
+            sortBtn.setText("Sort (desc)");
+        } else {
+            // Sort observableMovies descending
+            FXCollections.sort(observableMovies, (m1, m2) -> m2.getTitle().compareToIgnoreCase(m1.getTitle()));
+            sortBtn.setText("Sort (asc)");
+        }
+    }
+
+    public void reset(boolean keepValues) {
+        movieListView.setItems(observableMovies);
+        movieListView.setCellFactory(movieListView -> new MovieCell());
+        if(!keepValues){
+            genreComboBox.setValue(null);
+            searchField.setText("");
+        }
+    }
+
+    public void filterMovies(Genre selectedGenre, String searchTerm){
+        FilteredList<Movie> filteredList = new FilteredList<>(observableMovies);
+        Predicate<Movie> genrePredicate = movie -> movie.getGenres().contains(selectedGenre);
+        Predicate<Movie> titlePredicate = movie -> movie.getTitle().toLowerCase().contains(searchTerm);
+        Predicate<Movie> combinedPredicate = genrePredicate.and(titlePredicate);
+
+        if (selectedGenre != null && !searchTerm.isEmpty()) {
+            filteredList.setPredicate(combinedPredicate);
+        } else if (selectedGenre != null) {
+            // Add a genre filter if a genre is selected
+            filteredList.setPredicate(genrePredicate);
+        } else if (!searchTerm.isEmpty()) {
+            // Add a title search filter if a search term is entered
+            filteredList.setPredicate(titlePredicate);
+        } else {
+            // No filter applied, show all movies
+            filteredList = (FilteredList<Movie>) observableMovies;
+        }
+        movieListView.setItems(filteredList);
+        movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
     }
 
 }
