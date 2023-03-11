@@ -14,6 +14,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
@@ -50,34 +51,33 @@ public class HomeController implements Initializable {
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());
 
-        // TODO add event handlers to buttons and call the regarding methods
-        // either set event handlers in the fxml file (onAction) or add them here
-
         // Search Button wird geklickt - Liste wird gefiltert
         searchBtn.setOnAction(e -> {
             Genre selectedGenre = (Genre) genreComboBox.getValue();
-            ObservableList<Movie> tempList = observableMovies;
+            String searchTerm = searchField.getText().toLowerCase();
+
+            // Create a new filtered list with the current observableMovies as the source list
+            FilteredList<Movie> filteredList = new FilteredList<>(observableMovies);
+
+            // Add a genre filter if a genre is selected
             if (selectedGenre != null) {
-                Predicate<Movie> genrePredicate = movie -> movie.getGenres().contains(selectedGenre);
-                tempList = tempList.filtered(genrePredicate);
+                filteredList.setPredicate(movie -> movie.getGenres().contains(selectedGenre));
             }
 
-            String searchTerm = searchField.getText();
+            // Add a title search filter if a search term is entered
             if (!searchTerm.isEmpty()) {
-                Predicate<Movie> searchPredicate = movie -> movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase());
-                tempList = tempList.filtered(searchPredicate);
+                filteredList.setPredicate(movie -> movie.getTitle().toLowerCase().contains(searchTerm));
             }
 
-            movieListView.setItems(tempList);
-            movieListView.setCellFactory(movieListView -> new MovieCell());
-
+            // Set the filtered list as the data source for the list view
+            movieListView.setItems(filteredList);
+            movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
         });
 
         // Reset Button wird geklickt - Alle Filter zurücksetzen
         resetBtn.setOnAction(e -> {
             movieListView.setItems(observableMovies);
             movieListView.setCellFactory(movieListView -> new MovieCell());
-
             genreComboBox.setValue(null);
             searchField.setText("");
         });
@@ -85,10 +85,12 @@ public class HomeController implements Initializable {
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> {
             if(sortBtn.getText().equals("Sort (asc)")) {
-                // TODO sort observableMovies ascending
+                // Sort observableMovies ascending
+                FXCollections.sort(observableMovies, (m1, m2) -> m1.getTitle().compareToIgnoreCase(m2.getTitle()));
                 sortBtn.setText("Sort (desc)");
             } else {
-                // TODO sort observableMovies descending
+                // Sort observableMovies descending
+                FXCollections.sort(observableMovies, (m1, m2) -> m2.getTitle().compareToIgnoreCase(m1.getTitle()));
                 sortBtn.setText("Sort (asc)");
             }
         });

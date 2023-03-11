@@ -38,6 +38,24 @@ public class Movie {
         List<Genre> toyStoryGenres = Arrays.asList(Genre.ANIMATION, Genre.ADVENTURE, Genre.COMEDY);
         movies.add(new Movie("Toy Story", "A cowboy doll and his friends come to life when humans aren't around", toyStoryGenres));
 
+        List<Genre> avengersGenres = Arrays.asList(Genre.ACTION, Genre.ADVENTURE, Genre.SCIENCE_FICTION);
+        movies.add(new Movie("Avengers: Endgame", "The Avengers attempt to reverse the damage caused by Thanos", avengersGenres));
+
+        List<Genre> theLionKingGenres = Arrays.asList(Genre.ANIMATION, Genre.ADVENTURE, Genre.DRAMA);
+        movies.add(new Movie("The Lion King", "A lion prince must overcome his own demons to become king", theLionKingGenres));
+
+        List<Genre> theSocialNetworkGenres = Arrays.asList(Genre.DRAMA);
+        movies.add(new Movie("The Social Network", "The story of how Mark Zuckerberg created Facebook", theSocialNetworkGenres));
+
+        List<Genre> inceptionGenres = Arrays.asList(Genre.ACTION, Genre.ADVENTURE, Genre.SCIENCE_FICTION, Genre.THRILLER);
+        movies.add(new Movie("Inception", "A thief steals corporate secrets through the use of dream-sharing technology", inceptionGenres));
+
+        List<Genre> forrestGumpGenres = Arrays.asList(Genre.COMEDY, Genre.DRAMA, Genre.ROMANCE);
+        movies.add(new Movie("Forrest Gump", "Forrest Gump, a man with a low IQ, accomplishes great things in his life", forrestGumpGenres));
+
+        List<Genre> theMartianGenres = Arrays.asList(Genre.ADVENTURE, Genre.DRAMA, Genre.SCIENCE_FICTION);
+        movies.add(new Movie("The Martian", "An astronaut is mistakenly presumed dead and left behind on Mars", theMartianGenres));
+
         return movies;
     }
 }
