@@ -42,7 +42,7 @@ public class MovieCell extends ListCell<Movie> {
                     genresText.append(", ");
                 }
             }
-            genres.setText(genresText.toString());
+            genres.setText(genresText.toString().replace("_"," ")); //GENRE Names underscore replacement (SIENCE_FICTION to SIENCE FICTION)
 
             // color scheme
             title.getStyleClass().add("text-yellow");

@@ -70,7 +70,7 @@ public class HomeController implements Initializable {
         });
     }
 
-    private void sortMovies() {
+    public void sortMovies() {
         if(sortBtn.getText().equals("Sort (asc)")) {
             // Sort observableMovies ascending
             FXCollections.sort(observableMovies, (m1, m2) -> m1.getTitle().compareToIgnoreCase(m2.getTitle()));
@@ -122,6 +122,14 @@ public class HomeController implements Initializable {
         }
         movieListView.setItems(filteredList);
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
+    }
+
+    public void setTextSortBtn(String text){
+        sortBtn.setText(text);
+    }
+
+    public String getTextSortBtn(){
+        return sortBtn.getText();
     }
 
 }
