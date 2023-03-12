@@ -2,62 +2,57 @@ package at.ac.fhcampuswien.fhmdb;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import com.jfoenix.controls.JFXButton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class HomeControllerTest {
-    /*@Test
-    public void test_Reset() {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+class HomeControllerTest {
+
+    private static HomeController homeController;
+
+    @BeforeAll
+    static void init() {
+        homeController = new HomeController();
     }
 
     @Test
-    public void no_Filter(){
-        //given: which values get set?
-        HomeController homeController = new HomeController();
+    void movies_are_correctly_sorted_ascending() {
+        ObservableList<Movie> observableMovies = FXCollections.observableArrayList();
 
-        private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();
-        FilteredList<Movie> filteredListbefore = new FilteredList<>(observableMovies);
+        //given
+        List<Movie> movies = new ArrayList<>();
 
-        //when: Function call with Parameter
-        homeController.filterMovies(null, "");
+        List<Genre> darkKnightGenres = Arrays.asList(Genre.ACTION, Genre.CRIME, Genre.DRAMA);
+        movies.add(new Movie("The Dark Knight", "Batman battles the Joker in Gotham City", darkKnightGenres));
+
+        List<Genre> jurassicParkGenres = Arrays.asList(Genre.ADVENTURE, Genre.SCIENCE_FICTION, Genre.THRILLER);
+        movies.add(new Movie("Jurassic Park", "Scientists clone dinosaurs with disastrous consequences", jurassicParkGenres));
+
+        List<Genre> toyStoryGenres = Arrays.asList(Genre.ANIMATION, Genre.ADVENTURE, Genre.COMEDY);
+        movies.add(new Movie("Toy Story", "A cowboy doll and his friends come to life when humans aren't around", toyStoryGenres));
+
+        List<Genre> avengersGenres = Arrays.asList(Genre.ACTION, Genre.ADVENTURE, Genre.SCIENCE_FICTION);
+        movies.add(new Movie("Avengers: Endgame", "The Avengers attempt to reverse the damage caused by Thanos", avengersGenres));
+
+        observableMovies.addAll(movies);
+
+        //when
+        homeController.sortList(observableMovies, true); //true == ascending
 
         //then
-        private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();
-        FilteredList<Movie> filteredListafter = new FilteredList<>(observableMovies);
-
-
-        assertEquals(filteredListbefore, filteredListafter);
-
+        assertEquals("Avengers: Endgame", observableMovies.get(0).getTitle());
 
     }
 
-    @Test
-    public void testFilterMoviesByGenre(){}
 
-    @Test
-    public void test_Filter_Movies_By_Titel_Batman(){
-
-    }
-
-    @Test
-    public void testFilterMoviesByGenreAndTitle(){}*/
-
-    @Test
-    public void test_Sort_Movies_Asc(){
-        HomeController h1 = new HomeController();
-
-        h1.sortBtn.setText("Sort (asc)");
-        h1.sortMovies();
-
-        String result = h1.sortBtn.getText();
-        String expected = "Sort (desc)";
-
-        assertEquals(expected, result);
-    }
 
 }

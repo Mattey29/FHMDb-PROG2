@@ -14,6 +14,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -66,20 +67,29 @@ public class HomeController implements Initializable {
 
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> {
-            this.sortMovies();
+            this.sortMovies(observableMovies);
         });
     }
 
-    public void sortMovies() {
+    public void sortMovies(ObservableList<Movie> mov) {
         if(sortBtn.getText().equals("Sort (asc)")) {
             // Sort observableMovies ascending
-            FXCollections.sort(observableMovies, (m1, m2) -> m1.getTitle().compareToIgnoreCase(m2.getTitle()));
+            sortList(mov, true);
             sortBtn.setText("Sort (desc)");
         } else {
             // Sort observableMovies descending
-            FXCollections.sort(observableMovies, (m1, m2) -> m2.getTitle().compareToIgnoreCase(m1.getTitle()));
+            sortList(mov, false);
             sortBtn.setText("Sort (asc)");
         }
+    }
+
+    public void sortList(ObservableList<Movie> mov, boolean ascendedOrder){
+        if (ascendedOrder){
+            FXCollections.sort(mov, (m1, m2) -> m1.getTitle().compareToIgnoreCase(m2.getTitle()));
+        }else {
+            FXCollections.sort(mov, (m1, m2) -> m2.getTitle().compareToIgnoreCase(m1.getTitle()));
+        }
+
     }
 
     public void reset(boolean keepValues) {
@@ -123,6 +133,8 @@ public class HomeController implements Initializable {
         movieListView.setItems(filteredList);
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
     }
+
+
 
     public void setTextSortBtn(String text){
         sortBtn.setText(text);
