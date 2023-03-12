@@ -51,7 +51,7 @@ public class HomeController implements Initializable {
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());
 
-        // Search Button wird geklickt - Liste wird gefiltert
+        // Search Button gets clicked - List gets filtered
         searchBtn.setOnAction(e -> {
             Genre selectedGenre = (Genre) genreComboBox.getValue();
             String searchTerm = searchField.getText().toLowerCase();
@@ -59,7 +59,7 @@ public class HomeController implements Initializable {
             this.filterMovies(selectedGenre, searchTerm);
         });
 
-        // Reset Button wird geklickt - Alle Filter zurücksetzen
+        // Reset Button get clicked- All Filters get reseted
         resetBtn.setOnAction(e -> {
             this.reset(false);
         });
@@ -85,6 +85,11 @@ public class HomeController implements Initializable {
     public void reset(boolean keepValues) {
         movieListView.setItems(observableMovies);
         movieListView.setCellFactory(movieListView -> new MovieCell());
+
+        //Alphabetical Sort will be reset
+        observableMovies.clear();
+        observableMovies.addAll(allMovies);
+
         if(!keepValues){
             genreComboBox.setValue(null);
             searchField.setText("");
@@ -94,17 +99,23 @@ public class HomeController implements Initializable {
     public void filterMovies(Genre selectedGenre, String searchTerm){
         FilteredList<Movie> filteredList = new FilteredList<>(observableMovies);
         Predicate<Movie> genrePredicate = movie -> movie.getGenres().contains(selectedGenre);
+
         Predicate<Movie> titlePredicate = movie -> movie.getTitle().toLowerCase().contains(searchTerm);
-        Predicate<Movie> combinedPredicate = genrePredicate.and(titlePredicate);
+        Predicate<Movie> descriptionPredicate = movie -> movie.getDescription().toLowerCase().contains(searchTerm);
+
+        Predicate<Movie> titleAndDescPredicate = titlePredicate.or(descriptionPredicate); //SearchTerm has to be in Title OR in Description (also in both counts)
+        Predicate<Movie> combinedPredicate = genrePredicate.and(titleAndDescPredicate); //Movie has to be the filtered Genre & contain the SearchTerm in the Title OR Description
 
         if (selectedGenre != null && !searchTerm.isEmpty()) {
+            //if Genre is selected && a SearchTerm is given
             filteredList.setPredicate(combinedPredicate);
         } else if (selectedGenre != null) {
             // Add a genre filter if a genre is selected
             filteredList.setPredicate(genrePredicate);
         } else if (!searchTerm.isEmpty()) {
             // Add a title search filter if a search term is entered
-            filteredList.setPredicate(titlePredicate);
+            filteredList.setPredicate(titleAndDescPredicate);
+
         } else {
             // No filter applied, show all movies
             filteredList = (FilteredList<Movie>) observableMovies;
