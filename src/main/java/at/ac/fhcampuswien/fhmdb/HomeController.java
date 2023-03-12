@@ -57,7 +57,18 @@ public class HomeController implements Initializable {
             Genre selectedGenre = (Genre) genreComboBox.getValue();
             String searchTerm = searchField.getText().toLowerCase();
             this.reset(true);
-            this.filterMovies(selectedGenre, searchTerm);
+            //ObservableList<Movie> mov = (ObservableList<Movie>)
+            this.filterMovies(selectedGenre, searchTerm, observableMovies);
+
+            for (Iterator<Movie> it = observableMovies.iterator(); it.hasNext();) {
+                Object obj = it.next();
+                if (obj == null) {
+                    it.remove();
+                }
+            }
+
+            movieListView.setItems(observableMovies);
+            movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
         });
 
         // Reset Button get clicked- All Filters get reseted
@@ -106,8 +117,11 @@ public class HomeController implements Initializable {
         }
     }
 
-    public void filterMovies(Genre selectedGenre, String searchTerm){
-        FilteredList<Movie> filteredList = new FilteredList<>(observableMovies);
+    public List<Movie> filterMovies(Genre selectedGenre, String searchTerm, ObservableList<Movie> mov){
+        //FilteredList<Movie> filteredList = new FilteredList<Movie>(mov);
+        ObservableList<Movie> copiedList = FXCollections.observableArrayList(mov); //shallow copy
+        FilteredList<Movie> filteredList = new FilteredList<>(copiedList);
+
         Predicate<Movie> genrePredicate = movie -> movie.getGenres().contains(selectedGenre);
 
         Predicate<Movie> titlePredicate = movie -> movie.getTitle().toLowerCase().contains(searchTerm);
@@ -128,10 +142,17 @@ public class HomeController implements Initializable {
 
         } else {
             // No filter applied, show all movies
-            filteredList = (FilteredList<Movie>) observableMovies;
+            //filteredList = (FilteredList<Movie>) mov;
         }
-        movieListView.setItems(filteredList);
-        movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
+
+        mov.clear();
+        mov.addAll(filteredList);
+
+        return filteredList;
+
+
+        //movieListView.setItems(filteredList);
+        //movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
     }
 
 
