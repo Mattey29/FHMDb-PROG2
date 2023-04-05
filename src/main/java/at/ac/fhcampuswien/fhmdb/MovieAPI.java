@@ -1,7 +1,9 @@
 package at.ac.fhcampuswien.fhmdb;
 
+import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import com.google.gson.Gson;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -24,9 +26,28 @@ public class MovieAPI {
         this.gson = new Gson();
     }
 
-    public List<Movie> getMovies() throws IOException {
+    public List<Movie> getMovies(String lookupQuery, Genre lookupGenre, Integer lookupReleaseYear, Double lookupRatingFrom) throws IOException {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(BASE_URL + "/movies").newBuilder();
+
+        if (lookupQuery != null && !lookupQuery.isEmpty()) {
+            urlBuilder.addQueryParameter("query", lookupQuery);
+        }
+
+        if (lookupGenre != null) {
+            urlBuilder.addQueryParameter("genre", lookupGenre.name());
+        }
+
+        if (lookupReleaseYear != null) {
+            urlBuilder.addQueryParameter("releaseYear", lookupReleaseYear.toString());
+        }
+
+        if (lookupRatingFrom != null) {
+            urlBuilder.addQueryParameter("ratingFrom", lookupRatingFrom.toString());
+        }
+
+        String url = urlBuilder.build().toString();
         Request request = new Request.Builder()
-                .url(BASE_URL+"/movies")
+                .url(url)
                 .build();
 
         Response response = client.newCall(request).execute();
@@ -36,5 +57,20 @@ public class MovieAPI {
         List<Movie> movies = Arrays.asList(moviesArray);
 
         return movies;
+    }
+
+
+    public Movie getMovieById(String id) throws IOException {
+        Request request = new Request.Builder()
+                .url(BASE_URL + "/movies/" + id)
+                .header("User-Agent", "http.agent")
+                .build();
+
+        Response response = client.newCall(request).execute();
+        String responseBody = response.body().string();
+
+        Movie movie = gson.fromJson(responseBody, Movie.class);
+
+        return movie;
     }
 }
