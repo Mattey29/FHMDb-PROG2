@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,9 +38,15 @@ public class HomeController implements Initializable {
     @FXML
     public JFXButton sortBtn;
 
-    public List<Movie> allMovies = Movie.initializeMovies();
+    // Old method to load movies
+    // public List<Movie> allMovies = Movie.initializeMovies();
+
+    private MovieAPI movieAPI = new MovieAPI();
+    public List<Movie> allMovies = movieAPI.getMovies();
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
+
+    public HomeController() throws IOException {}
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
