@@ -1,16 +1,9 @@
 package at.ac.fhcampuswien.fhmdb;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import at.ac.fhcampuswien.fhmdb.HomeController;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
-import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -19,13 +12,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class HomeControllerTest {
 
     public static HomeController homeController;
+    public static List<Movie> requestedMovies;
+    public static MovieAPI movieAPI1;
 
     @BeforeAll
     public static void init() throws IOException {
         homeController = new HomeController();
+        movieAPI1 = new MovieAPI();
+        requestedMovies = movieAPI1.getMovies(null, null, null, null);
     }
 
     @Test
@@ -119,6 +118,61 @@ public class HomeControllerTest {
         assertEquals("Jurassic Park", observableMovies.get(0).getTitle());
 
     }
+
+    @Test
+    void getMostPopularActor() {
+        //given
+        String expectedResult = "Tom Hanks";
+
+        //when
+        String actualResult = homeController.getMostPopularActor(requestedMovies);
+
+        //then
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void getLongestMovieTitle() {
+        //given
+        int expectedResult = 46;
+
+        //when
+        int actualResult = homeController.getLongestMovieTitle(requestedMovies);
+
+        //then
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void countMoviesFrom() {
+        //given
+        double expectedResult = 3.0;
+
+        //when
+        double actualResult = homeController.countMoviesFrom(requestedMovies, "Steven Spielberg");
+
+        //then
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void getMoviesBetweenYears() {
+        //given
+        String expectedResult = "Goodfellas";
+
+        //when
+        List<Movie> actualResultMovie = homeController.getMoviesBetweenYears(requestedMovies, 1990, 1990);
+        String actualResult = "";
+
+        for (Movie movie : actualResultMovie) {
+            actualResult = movie.getTitle();
+        }
+
+        //then
+        assertEquals(expectedResult, actualResult);
+    }
+
+
 
    /* @Test
     void test_filtering_by_genre_no_hit(){
