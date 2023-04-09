@@ -197,7 +197,7 @@ public class HomeController implements Initializable {
     public long countMoviesFrom(List<Movie> movies, String director) {
         // Count the number of movies with a certain director using a stream
         return movies.stream()
-                .filter(movie -> movie.getDirectors().equals(director))
+                .filter(movie -> movie.getDirectors().stream().anyMatch(d -> d.equals(director)))
                 .count();
     }
 
@@ -207,5 +207,34 @@ public class HomeController implements Initializable {
                 .filter(movie -> movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear)
                 .collect(Collectors.toList());
     }
+
+    // STREAM TESTS
+    public static void main(String[] args) throws IOException {
+        List<Movie> requestedMovies;
+        MovieAPI movieAPI1 = new MovieAPI();
+        HomeController homeController = new HomeController();
+
+        try {
+            requestedMovies = movieAPI1.getMovies(null, null, null, null);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        String mostPopularActor = homeController.getMostPopularActor(requestedMovies);
+        System.out.println("Most popular actor: " + mostPopularActor);
+
+        int longestTitle = homeController.getLongestMovieTitle(requestedMovies);
+        System.out.println("The longest Title: " + longestTitle);
+
+        double spielbergMovies = homeController.countMoviesFrom(requestedMovies, "Steven Spielberg");
+        System.out.println("Steven Spielberg movies: " + spielbergMovies);
+
+        List<Movie> ninetiesMovies = homeController.getMoviesBetweenYears(requestedMovies, 1990, 1990);
+        System.out.println("Movies in 1990: ");
+        for (Movie movie : ninetiesMovies) {
+            System.out.println("    - " + movie.getTitle()+" in "+movie.getReleaseYear());
+        }
+    }
+
 
 }

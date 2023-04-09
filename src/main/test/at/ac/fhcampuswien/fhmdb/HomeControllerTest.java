@@ -2,6 +2,7 @@ package at.ac.fhcampuswien.fhmdb;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import at.ac.fhcampuswien.fhmdb.HomeController;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
@@ -13,21 +14,22 @@ import javafx.collections.transformation.FilteredList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-class HomeControllerTest {
+public class HomeControllerTest {
 
-    private static HomeController homeController;
+    public static HomeController homeController;
 
     @BeforeAll
-    static void init() {
+    public static void init() throws IOException {
         homeController = new HomeController();
     }
 
     @Test
-    void test_movies_are_correctly_sorted_ascending() {
+    public void test_movies_are_correctly_sorted_ascending() {
         ObservableList<Movie> observableMovies = FXCollections.observableArrayList();
 
         //given
@@ -59,7 +61,7 @@ class HomeControllerTest {
     }
 
     @Test
-    void test_movies_are_correctly_sorted_descending() {
+    public void test_movies_are_correctly_sorted_descending() {
         ObservableList<Movie> observableMovies = FXCollections.observableArrayList();
 
         //given
@@ -91,7 +93,7 @@ class HomeControllerTest {
     }
 
     @Test
-    void test_filtering_by_genre_one_hit(){
+    public void test_filtering_by_genre_one_hit(){
 
         ObservableList<Movie> observableMovies = FXCollections.observableArrayList();
 
