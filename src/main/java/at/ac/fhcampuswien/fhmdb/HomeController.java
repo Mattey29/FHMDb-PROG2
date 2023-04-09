@@ -34,13 +34,19 @@ public class HomeController implements Initializable {
     public JFXComboBox genreComboBox;
 
     @FXML
+    public JFXComboBox yearComboBox;
+
+
+
+    @FXML
     public JFXButton sortBtn;
 
     // Old method to load movies
-    // public List<Movie> allMovies = Movie.initializeMovies();
+    //public List<Movie> allMovies = Movie.initializeMovies();
 
     private MovieAPI movieAPI = new MovieAPI();
 
+    //public List<Movie> allMovies = movieAPI.fetchMovies();
     public List<Movie> allMovies = movieAPI.getMovies(null, null, null, null);
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
@@ -58,13 +64,38 @@ public class HomeController implements Initializable {
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());
 
+        yearComboBox.setPromptText("Select Year");
+        yearComboBox.setPromptText("Filter by Release Year");
+        List<Integer> allReleaseYears = new ArrayList<>();
+        for (Movie movie : allMovies) {
+            int releaseYear = movie.getReleaseYear();
+            if(!allReleaseYears.contains(releaseYear)) {
+                allReleaseYears.add(releaseYear);
+            }
+            Collections.sort(allReleaseYears);
+
+        }
+        yearComboBox.getItems().addAll(allReleaseYears);
+
         // Search Button gets clicked - List gets filtered
         searchBtn.setOnAction(e -> {
             Genre selectedGenre = (Genre) genreComboBox.getValue();
             String searchTerm = searchField.getText().toLowerCase();
+            int releaseYear = (int) yearComboBox.getValue();
+
             this.reset(true);
             //ObservableList<Movie> mov = (ObservableList<Movie>)
-            this.filterMovies(selectedGenre, searchTerm, observableMovies);
+
+            //this.filterMovies(selectedGenre, searchTerm, observableMovies);
+            //API - filtered fetch
+            List<Movie> filterMovies = null;
+            try {
+                filterMovies = movieAPI.getMovies(searchTerm, selectedGenre, releaseYear, null);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            observableMovies.clear();
+            observableMovies.addAll(filterMovies);
 
             for (Iterator<Movie> it = observableMovies.iterator(); it.hasNext();) {
                 Object obj = it.next();
@@ -119,6 +150,7 @@ public class HomeController implements Initializable {
 
         if(!keepValues){
             genreComboBox.setValue(null);
+            yearComboBox.setValue(null);
             searchField.setText("");
         }
     }
