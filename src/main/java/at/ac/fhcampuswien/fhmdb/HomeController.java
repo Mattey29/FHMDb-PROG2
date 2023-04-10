@@ -34,7 +34,10 @@ public class HomeController implements Initializable {
     public JFXComboBox genreComboBox;
 
     @FXML
-    public JFXComboBox yearComboBox;
+    public JFXComboBox<Integer> yearComboBox;
+
+    @FXML
+    public JFXComboBox<Double> ratingComboBox;
 
 
 
@@ -61,10 +64,11 @@ public class HomeController implements Initializable {
         movieListView.setItems(observableMovies);   // set data of observable list to list view
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
 
+        searchField.setText("");
+
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());
 
-        yearComboBox.setPromptText("Select Year");
         yearComboBox.setPromptText("Filter by Release Year");
         List<Integer> allReleaseYears = new ArrayList<>();
         for (Movie movie : allMovies) {
@@ -77,34 +81,40 @@ public class HomeController implements Initializable {
         }
         yearComboBox.getItems().addAll(allReleaseYears);
 
+        ratingComboBox.setPromptText("Filter by Rating");
+        List<Double> allRatings = new ArrayList<>();
+        for (double i = 5.0; i < 10.0; i=i+0.5) {
+                allRatings.add(i);
+        }
+
+        ratingComboBox.getItems().addAll(allRatings);
+
+
         // Search Button gets clicked - List gets filtered
         searchBtn.setOnAction(e -> {
+
+
             Genre selectedGenre = (Genre) genreComboBox.getValue();
+
+
             String searchTerm = searchField.getText().toLowerCase();
-            int releaseYear = (int) yearComboBox.getValue();
 
-            this.reset(true);
-            //ObservableList<Movie> mov = (ObservableList<Movie>)
+            Integer releaseYear = yearComboBox.getValue();
 
-            //this.filterMovies(selectedGenre, searchTerm, observableMovies);
-            //API - filtered fetch
+            Double lookupRatingFrom = ratingComboBox.getValue();
+
+
             List<Movie> filterMovies = null;
+
             try {
-                filterMovies = movieAPI.getMovies(searchTerm, selectedGenre, releaseYear, null);
+                filterMovies = movieAPI.getMovies(searchTerm, selectedGenre, releaseYear, lookupRatingFrom);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
             observableMovies.clear();
             observableMovies.addAll(filterMovies);
 
-            for (Iterator<Movie> it = observableMovies.iterator(); it.hasNext();) {
-                Object obj = it.next();
-                if (obj == null) {
-                    it.remove();
-                }
-            }
-
-            movieListView.setItems(observableMovies);
+            //movieListView.setItems(observableMovies);
             movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
         });
 
@@ -151,6 +161,7 @@ public class HomeController implements Initializable {
         if(!keepValues){
             genreComboBox.setValue(null);
             yearComboBox.setValue(null);
+            ratingComboBox.setValue(null);
             searchField.setText("");
         }
     }

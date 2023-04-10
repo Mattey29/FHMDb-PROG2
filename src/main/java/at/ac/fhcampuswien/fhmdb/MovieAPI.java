@@ -74,6 +74,7 @@ public class MovieAPI {
             urlBuilder.addQueryParameter("ratingFrom", lookupRatingFrom.toString());
         }
 
+
         String url = urlBuilder.build().toString();
         Request request = new Request.Builder()
                 .url(url)
