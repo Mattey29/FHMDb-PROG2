@@ -1,11 +1,14 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
@@ -13,21 +16,41 @@ public class MovieCell extends ListCell<Movie> {
     private final Label title = new Label();
     private final Label detail = new Label();
     private final Label genres = new Label();
-    private final VBox layout = new VBox(title, detail, genres);
+    private final VBox layout = new VBox();
+    private final JFXButton addToWatchlistBtn = new JFXButton("Add to Watchlist");
+    private final JFXButton showDetailsBtn = new JFXButton("Show Details");
+    private final HBox buttons = new HBox(addToWatchlistBtn, showDetailsBtn);
+
+    public MovieCell() {
+        getStylesheets().add(getClass().getResource("/at/ac/fhcampuswien/fhmdb/styles.css").toExternalForm());
+
+        // Add style classes to the buttons
+        addToWatchlistBtn.getStyleClass().addAll("background-yellow", "text-white");
+        showDetailsBtn.getStyleClass().addAll("background-yellow", "text-white");
+
+        // set behavior for add to watchlist button
+        addToWatchlistBtn.setOnAction(event -> {
+            // add movie to watchlist
+            // you can access the movie object with getItem()
+        });
+
+        // set behavior for show details button
+        showDetailsBtn.setOnAction(event -> {
+            // show details of movie
+            // you can access the movie object with getItem()
+        });
+
+        layout.getChildren().addAll(title, detail, genres, buttons);
+    }
 
     @Override
     protected void updateItem(Movie movie, boolean empty) {
         super.updateItem(movie, empty);
 
-        if (getScene() == null) {
-            return;
-        }
-
         if (empty || movie == null) {
-            setGraphic(null); //delete unused Elements
+            setGraphic(null);
             setText(null);
         } else {
-            this.getStyleClass().add("movie-cell");
             title.setText(movie.getTitle());
             detail.setText(
                     movie.getDescription() != null
@@ -57,9 +80,11 @@ public class MovieCell extends ListCell<Movie> {
             detail.setWrapText(true);
             layout.setPadding(new Insets(10));
             layout.spacingProperty().set(10);
-            layout.alignmentProperty().set(javafx.geometry.Pos.CENTER_LEFT);
+            layout.setAlignment(Pos.CENTER_LEFT);
+            buttons.setAlignment(Pos.CENTER_RIGHT);
+            buttons.setSpacing(10);
+
             setGraphic(layout);
         }
     }
 }
-

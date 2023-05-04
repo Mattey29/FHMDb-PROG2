@@ -1,3 +1,6 @@
+.jfx-hamburger > * {
+    -fx-background-color: white;
+}
 
 .background-yellow {
     -fx-background-color: #f5c518;
