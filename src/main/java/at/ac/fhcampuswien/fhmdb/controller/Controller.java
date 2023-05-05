@@ -1,11 +1,9 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
 import at.ac.fhcampuswien.fhmdb.data.Database;
-
 import at.ac.fhcampuswien.fhmdb.data.WatchlistDao;
 import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
-import at.ac.fhcampuswien.fhmdb.models.WatchlistMovieEntity;
 
 import java.sql.SQLException;
 

@@ -10,7 +10,7 @@ public class WatchlistMovieEntity extends Movie{
     @DatabaseField(generatedId = true)
     public long id;
     @DatabaseField
-    public String apild;
+    public String apiId;
     @DatabaseField
     public String title;
     @DatabaseField
@@ -28,10 +28,12 @@ public class WatchlistMovieEntity extends Movie{
 
     public WatchlistMovieEntity(String id, String title, String description, List<Genre> genres, int releaseYear, String imgUrl, int lengthInMinutes, List<String> directors, List<String> writers, List<String> mainCast, double rating) {
         super(id, title, description, genres, releaseYear, imgUrl, lengthInMinutes, directors, writers, mainCast, rating);
+        this.apiId = id;
     }
 
     public WatchlistMovieEntity(Movie movie) {
         super(movie.getId(), movie.getTitle(), movie.getDescription(), movie.getGenres(), movie.getReleaseYear(), movie.getImgUrl(), movie.getLengthInMinutes(), movie.getDirectors(), movie.getWriters(), movie.getMainCast(), movie.getRating());
+        this.apiId = String.valueOf(id);
     }
     public WatchlistMovieEntity() {
         super();
