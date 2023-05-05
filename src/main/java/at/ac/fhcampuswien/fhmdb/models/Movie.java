@@ -37,6 +37,9 @@ public class Movie {
         this.genres = genres;
     }
 
+    public Movie() {
+    }
+
     public static List<Movie> initializeMovies(){
         List<Movie> movies = new ArrayList<>();
 

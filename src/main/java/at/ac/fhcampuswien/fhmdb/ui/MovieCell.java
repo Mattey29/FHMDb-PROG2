@@ -1,7 +1,10 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
+import at.ac.fhcampuswien.fhmdb.controller.Controller;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import com.jfoenix.controls.JFXButton;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -21,24 +24,19 @@ public class MovieCell extends ListCell<Movie> {
     private final JFXButton showDetailsBtn = new JFXButton("Show Details");
     private final HBox buttons = new HBox(addToWatchlistBtn, showDetailsBtn);
 
-    public MovieCell() {
+    public MovieCell(Controller.ClickEventHandler<Movie> addToWatchlistClicked, Controller.ClickEventHandler<Movie> removeFromWatchlistClicked) {
         getStylesheets().add(getClass().getResource("/at/ac/fhcampuswien/fhmdb/styles.css").toExternalForm());
 
         // Add style classes to the buttons
         addToWatchlistBtn.getStyleClass().addAll("background-yellow", "text-white");
         showDetailsBtn.getStyleClass().addAll("background-yellow", "text-white");
 
-        // set behavior for add to watchlist button
-        addToWatchlistBtn.setOnAction(event -> {
-            // add movie to watchlist
-            // you can access the movie object with getItem()
+        addToWatchlistBtn.setOnMouseClicked(mouseEvent -> {
+            addToWatchlistClicked.onClick(getItem());
         });
-
-        // set behavior for show details button
-        showDetailsBtn.setOnAction(event -> {
-            // show details of movie
-            // you can access the movie object with getItem()
-        });
+        /*removeFromWatchlistBtn.setOnMouseClicked(mouseEvent -> {
+            removeFromWatchlistClicked.onClick(getItem());
+        });*/
 
         layout.getChildren().addAll(title, detail, genres, buttons);
     }

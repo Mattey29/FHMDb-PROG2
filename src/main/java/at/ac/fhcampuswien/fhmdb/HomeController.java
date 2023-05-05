@@ -1,5 +1,7 @@
 package at.ac.fhcampuswien.fhmdb;
 
+import at.ac.fhcampuswien.fhmdb.controller.Controller;
+import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
@@ -9,6 +11,7 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.transitions.hamburger.HamburgerSlideCloseTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.input.MouseEvent;
@@ -22,6 +25,7 @@ import javafx.scene.control.TextField;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -65,7 +69,8 @@ public class HomeController implements Initializable {
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
-    public HomeController() throws IOException {}
+    public HomeController() throws IOException, SQLException, DatabaseException {}
+    public Controller controller = new Controller();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -73,7 +78,14 @@ public class HomeController implements Initializable {
 
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
-        movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
+
+        try {
+            this.controller = new Controller();
+        } catch (SQLException | DatabaseException e) {
+            throw new RuntimeException(e);
+        }
+
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked())); // use custom cell factory to display data
 
         searchField.setText("");
 
@@ -84,7 +96,7 @@ public class HomeController implements Initializable {
         List<Integer> allReleaseYears = new ArrayList<>();
         for (Movie movie : allMovies) {
             int releaseYear = movie.getReleaseYear();
-            if(!allReleaseYears.contains(releaseYear)) {
+            if (!allReleaseYears.contains(releaseYear)) {
                 allReleaseYears.add(releaseYear);
             }
             Collections.sort(allReleaseYears);
@@ -94,8 +106,8 @@ public class HomeController implements Initializable {
 
         ratingComboBox.setPromptText("Filter by Rating");
         List<Double> allRatings = new ArrayList<>();
-        for (double i = 5.0; i < 10.0; i=i+0.5) {
-                allRatings.add(i);
+        for (double i = 5.0; i < 10.0; i = i + 0.5) {
+            allRatings.add(i);
         }
 
         ratingComboBox.getItems().addAll(allRatings);
@@ -147,7 +159,7 @@ public class HomeController implements Initializable {
             observableMovies.addAll(filterMovies);
 
             //movieListView.setItems(observableMovies);
-            movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
+            movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked())); // use custom cell factory to display data
         });
 
         // Reset Button get clicked- All Filters get reseted
@@ -160,6 +172,7 @@ public class HomeController implements Initializable {
             this.sortMovies(observableMovies);
         });
     }
+
 
     public void sortMovies(ObservableList<Movie> mov) {
         if(sortBtn.getText().equals("Sort (asc)")) {
@@ -184,7 +197,7 @@ public class HomeController implements Initializable {
 
     public void reset(boolean keepValues) {
         movieListView.setItems(observableMovies);
-        movieListView.setCellFactory(movieListView -> new MovieCell());
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked()));
 
         //Alphabetical Sort will be reset
         observableMovies.clear();
@@ -284,7 +297,7 @@ public class HomeController implements Initializable {
     }
 
     // STREAM TESTS
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException, DatabaseException {
         List<Movie> requestedMovies;
         MovieAPI movieAPI1 = new MovieAPI();
         HomeController homeController = new HomeController();
