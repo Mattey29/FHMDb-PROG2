@@ -10,6 +10,8 @@ import com.j256.ormlite.support.ConnectionSource;
 import java.sql.SQLException;
 import java.util.List;
 
+import static at.ac.fhcampuswien.fhmdb.HomeController.watchList;
+
 public class WatchlistDao{
 
     private Dao<WatchlistMovieEntity, Long> dao;
@@ -26,6 +28,7 @@ public class WatchlistDao{
 
     public void addToWatchlist(Movie movie) throws DatabaseException {
         WatchlistMovieEntity entity = new WatchlistMovieEntity(movie);
+        watchList.add(movie);
         try{
             dao.create(entity);
         } catch(SQLException e) {
@@ -35,6 +38,7 @@ public class WatchlistDao{
 
     public void removeFromWatchlist(Movie movie) throws DatabaseException {
         WatchlistMovieEntity entity = new WatchlistMovieEntity(movie);
+        watchList.remove(movie);
         try{
             dao.delete(entity);
         } catch(SQLException e) {

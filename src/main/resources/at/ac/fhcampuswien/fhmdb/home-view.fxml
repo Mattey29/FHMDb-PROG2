@@ -22,8 +22,8 @@
          </padding>
          <Label styleClass="text-white" stylesheets="@styles.css" text="Welcome to FHMDb!" />
 
-         <JFXButton fx:id="watchlistBtn" styleClass="background-yellow" stylesheets="@styles.css" text="Watchlist" onAction="#switchToWatchlist" />
          <JFXButton fx:id="homeBtn" styleClass="background-yellow" stylesheets="@styles.css" text="Home" onAction="#switchToHome" />
+         <JFXButton fx:id="watchlistBtn" styleClass="background-yellow" stylesheets="@styles.css" text="Watchlist" onAction="#switchToWatchlist" />
 
          <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
             <JFXHamburger fx:id="hamburger" />

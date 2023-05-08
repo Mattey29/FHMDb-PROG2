@@ -21,22 +21,23 @@ public class MovieCell extends ListCell<Movie> {
     private final Label genres = new Label();
     private final VBox layout = new VBox();
     private final JFXButton addToWatchlistBtn = new JFXButton("Add to Watchlist");
-    private final JFXButton showDetailsBtn = new JFXButton("Show Details");
-    private final HBox buttons = new HBox(addToWatchlistBtn, showDetailsBtn);
+    private final JFXButton removeFromWatchlistBtn = new JFXButton("Remove from Watchlist");
+    private final HBox buttons = new HBox(addToWatchlistBtn, removeFromWatchlistBtn);
 
     public MovieCell(Controller.ClickEventHandler<Movie> addToWatchlistClicked, Controller.ClickEventHandler<Movie> removeFromWatchlistClicked) {
         getStylesheets().add(getClass().getResource("/at/ac/fhcampuswien/fhmdb/styles.css").toExternalForm());
 
         // Add style classes to the buttons
         addToWatchlistBtn.getStyleClass().addAll("background-yellow", "text-white");
-        showDetailsBtn.getStyleClass().addAll("background-yellow", "text-white");
+        removeFromWatchlistBtn.getStyleClass().addAll("background-yellow", "text-white");
 
         addToWatchlistBtn.setOnMouseClicked(mouseEvent -> {
             addToWatchlistClicked.onClick(getItem());
         });
-        /*removeFromWatchlistBtn.setOnMouseClicked(mouseEvent -> {
+
+        removeFromWatchlistBtn.setOnMouseClicked(mouseEvent -> {
             removeFromWatchlistClicked.onClick(getItem());
-        });*/
+        });
 
         layout.getChildren().addAll(title, detail, genres, buttons);
     }
