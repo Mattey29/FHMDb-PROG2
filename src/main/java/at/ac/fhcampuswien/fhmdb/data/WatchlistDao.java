@@ -28,12 +28,15 @@ public class WatchlistDao{
 
     public void addToWatchlist(Movie movie) throws DatabaseException {
         WatchlistMovieEntity entity = new WatchlistMovieEntity(movie);
-        watchList.add(movie);
-        try{
-            dao.create(entity);
-        } catch(SQLException e) {
-            throw new DatabaseException("Error creating Watchlist record in db.", e);
+        if(!watchList.contains(movie)){
+            watchList.add(movie);
+            try{
+                dao.create(entity);
+            } catch(SQLException e) {
+                throw new DatabaseException("Error creating Watchlist record in db.", e);
+            }
         }
+
     }
 
     public void removeFromWatchlist(Movie movie) throws DatabaseException {
