@@ -21,6 +21,8 @@ public class Database {
     // ConnectionSource object to manage database connections
     public ConnectionSource connectionSource;
     // Data access object for WatchlistMovieEntity
+
+    private static Database instance;
     Dao<WatchlistMovieEntity, Long> dao;
 
     // Constructor
@@ -56,4 +58,5 @@ public class Database {
             throw new DatabaseException("Error creating Table", e);
         }
     }
+
 }

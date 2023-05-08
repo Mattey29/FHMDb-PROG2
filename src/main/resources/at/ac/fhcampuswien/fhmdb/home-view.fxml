@@ -15,21 +15,16 @@
 
 <StackPane xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.fhcampuswien.fhmdb.HomeController">
    <VBox prefHeight="331.0" prefWidth="570.0" >
-      <HBox alignment="CENTER_LEFT" prefHeight="42.0" prefWidth="347.0" spacing="20.0" style="-fx-background-color: black;">
+      <!-- ... Inhalte der Home-Seite ... -->
+      <HBox alignment="CENTER_LEFT" prefHeight="42.0" prefWidth="570.0" spacing="20.0" style="-fx-background-color: black;">
          <padding>
             <Insets bottom="7.0" left="10.0" top="7.0" />
          </padding>
-         <children>
-            <Label style="-fx-background-color: F5C518;" text="FHMDb">
-               <font>
-                  <Font name="Calibri Bold" size="24.0" />
-               </font>
-               <padding>
-                  <Insets left="2.0" right="2.0" />
-               </padding>
-            </Label>
-            <Label styleClass="text-white" stylesheets="@styles.css" text="Welcome to FHMDb!" />
-         </children>
+         <Label styleClass="text-white" stylesheets="@styles.css" text="Welcome to FHMDb!" />
+
+         <JFXButton fx:id="watchlistBtn" styleClass="background-yellow" stylesheets="@styles.css" text="Watchlist" onAction="#switchToWatchlist" />
+         <JFXButton fx:id="homeBtn" styleClass="background-yellow" stylesheets="@styles.css" text="Home" onAction="#switchToHome" />
+
          <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
             <JFXHamburger fx:id="hamburger" />
          </HBox>

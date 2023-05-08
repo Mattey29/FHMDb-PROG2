@@ -1,10 +1,14 @@
 package at.ac.fhcampuswien.fhmdb;
 
 import at.ac.fhcampuswien.fhmdb.controller.Controller;
+import at.ac.fhcampuswien.fhmdb.data.WatchlistDao;
 import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.models.WatchlistMovieEntity;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
+import at.ac.fhcampuswien.fhmdb.data.Database;
+
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
@@ -30,6 +34,15 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.event.Event;
+
+
+//--------
+
 public class HomeController implements Initializable {
     @FXML
     private JFXHamburger hamburger;
@@ -54,6 +67,8 @@ public class HomeController implements Initializable {
     @FXML
     public JFXComboBox<Double> ratingComboBox;
 
+    public static List<Movie> watchList = new ArrayList<>();
+
 
 
     @FXML
@@ -69,21 +84,41 @@ public class HomeController implements Initializable {
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
-    public HomeController() throws IOException, SQLException, DatabaseException {}
+
+    public HomeController() throws IOException, SQLException, DatabaseException {     try {
+        this.watchlistDao = new WatchlistDao();
+    } catch (DatabaseException e) {
+        // Hier können Sie die Ausnahme behandeln
+    }}
     public Controller controller = new Controller();
+
+
+    private WatchlistDao watchlistDao;
+
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         observableMovies.addAll(allMovies);         // add dummy data to observable list
+
+
+        try {
+            fillWatchlist(watchlistDao.getAll());
+        } catch (DatabaseException e) {
+            throw new RuntimeException(e);
+        }
+
 
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
 
         try {
             this.controller = new Controller();
+
         } catch (SQLException | DatabaseException e) {
             throw new RuntimeException(e);
         }
+
 
         movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked())); // use custom cell factory to display data
 
@@ -295,6 +330,48 @@ public class HomeController implements Initializable {
                 .filter(movie -> movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear)
                 .collect(Collectors.toList());
     }
+
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+    private Event event;
+
+
+    @FXML
+    private void switchToWatchlist() throws IOException {
+        observableMovies.clear();
+
+        observableMovies.addAll(watchList); //show all movies from the watchlist
+    }
+    @FXML
+    private void switchToHome(ActionEvent event) throws IOException {
+        observableMovies.clear();
+
+        observableMovies.addAll(allMovies); //show all movies
+    }
+
+    public List<Movie> fillWatchlist(List<WatchlistMovieEntity> entities) {
+        List<Movie> watchlistMovies = new ArrayList<>();
+        System.out.println(entities);
+        if (!entities.isEmpty()) {
+            for (WatchlistMovieEntity entity : entities) {
+                watchlistMovies.add(entity);
+            }
+        }
+        return watchlistMovies;
+    }
+
+
+
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 
     // STREAM TESTS
     public static void main(String[] args) throws IOException, SQLException, DatabaseException {

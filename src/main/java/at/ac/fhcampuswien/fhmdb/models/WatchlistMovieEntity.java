@@ -44,4 +44,13 @@ public class WatchlistMovieEntity extends Movie{
         return "";
     }
 
+    public Movie toMovie() {
+
+
+        return new Movie(getId(), getTitle(), getDescription(), getGenres(), getReleaseYear(),
+                getImgUrl(), getLengthInMinutes(), getDirectors(), getWriters(), getMainCast(), getRating());
+    }
+
+
+
 }
