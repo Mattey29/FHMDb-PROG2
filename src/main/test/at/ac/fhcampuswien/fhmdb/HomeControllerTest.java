@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb;
 
+import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import javafx.collections.FXCollections;
@@ -7,6 +8,7 @@ import javafx.collections.ObservableList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +22,7 @@ public class HomeControllerTest {
     public static MovieAPI movieAPI1;
 
     @BeforeAll
-    public static void init() throws IOException {
+    public static void init() throws IOException, SQLException, DatabaseException {
         homeController = new HomeController();
         movieAPI1 = new MovieAPI();
         requestedMovies = movieAPI1.getMovies(null, null, null, null);

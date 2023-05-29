@@ -24,7 +24,7 @@ public class MovieCell extends ListCell<Movie> {
     private final JFXButton removeFromWatchlistBtn = new JFXButton("Remove from Watchlist");
     private final HBox buttons = new HBox(addToWatchlistBtn, removeFromWatchlistBtn);
 
-    public MovieCell(Controller.ClickEventHandler<Movie> addToWatchlistClicked, Controller.ClickEventHandler<Movie> removeFromWatchlistClicked) {
+    public MovieCell(Controller.ClickEventHandler<Movie> addToWatchlistClicked, Controller.ClickEventHandler<Movie> removeFromWatchlistClicked, boolean isHomeView) {
         getStylesheets().add(getClass().getResource("/at/ac/fhcampuswien/fhmdb/styles.css").toExternalForm());
 
         // Add style classes to the buttons
@@ -38,6 +38,13 @@ public class MovieCell extends ListCell<Movie> {
         removeFromWatchlistBtn.setOnMouseClicked(mouseEvent -> {
             removeFromWatchlistClicked.onClick(getItem());
         });
+
+        // Conditionally show/hide buttons based on the view type
+        if (isHomeView) {
+            buttons.getChildren().remove(removeFromWatchlistBtn);
+        } else {
+            buttons.getChildren().remove(addToWatchlistBtn);
+        }
 
         layout.getChildren().addAll(title, detail, genres, buttons);
     }

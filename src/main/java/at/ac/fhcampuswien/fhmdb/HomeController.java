@@ -6,25 +6,19 @@ import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.models.WatchlistMovieEntity;
+import at.ac.fhcampuswien.fhmdb.ui.MovieAlert;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
-import at.ac.fhcampuswien.fhmdb.data.Database;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
-import com.jfoenix.controls.JFXHamburger;
-import com.jfoenix.controls.JFXDrawer;
-import com.jfoenix.transitions.hamburger.HamburgerSlideCloseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 
 import java.io.IOException;
@@ -34,14 +28,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.event.Event;
-
-
-//--------
 
 public class HomeController implements Initializable {
     @FXML
@@ -55,7 +42,7 @@ public class HomeController implements Initializable {
     public JFXListView movieListView;
 
     @FXML
-    public JFXComboBox genreComboBox;
+    public JFXComboBox<Genre> genreComboBox;
 
     @FXML
     public JFXComboBox<Integer> yearComboBox;
@@ -71,30 +58,36 @@ public class HomeController implements Initializable {
     // Old method to load movies
     //public List<Movie> allMovies = Movie.initializeMovies();
 
-    private MovieAPI movieAPI = new MovieAPI();
+    private final MovieAPI movieAPI = new MovieAPI();
 
     //public List<Movie> allMovies = movieAPI.fetchMovies();
     public List<Movie> allMovies = movieAPI.getMovies(null, null, null, null);
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
-
-    public HomeController() throws IOException, SQLException, DatabaseException {     try {
-        this.watchlistDao = new WatchlistDao();
-    } catch (DatabaseException e) {
-        // Hier können Sie die Ausnahme behandeln
-    }}
+    public HomeController() throws IOException, SQLException, DatabaseException {
+        try {
+            this.watchlistDao = new WatchlistDao();
+        } catch (DatabaseException e) {
+            // Hier können Sie die Ausnahme behandeln
+        }}
     public Controller controller = new Controller();
 
-
     private WatchlistDao watchlistDao;
-
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         observableMovies.addAll(allMovies);         // add dummy data to observable list
-
+        try {
+            List<WatchlistMovieEntity> entityList = watchlistDao.getAll();
+            watchList = WatchlistMovieEntity.convertToMovieList(entityList);
+            for (WatchlistMovieEntity movie : entityList) {
+                String movieString = movie.toString();
+                System.out.println(movieString);
+            }
+        } catch (DatabaseException | IOException e) {
+            throw new RuntimeException(e);
+        }
 
         try {
             fillWatchlist(watchlistDao.getAll());
@@ -102,19 +95,16 @@ public class HomeController implements Initializable {
             throw new RuntimeException(e);
         }
 
-
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
 
         try {
             this.controller = new Controller();
-
         } catch (SQLException | DatabaseException e) {
             throw new RuntimeException(e);
         }
 
-
-        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked())); // use custom cell factory to display data
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true)); // use custom cell factory to display data
 
         searchField.setText("");
 
@@ -144,16 +134,13 @@ public class HomeController implements Initializable {
         // Search Button gets clicked - List gets filtered
         searchBtn.setOnAction(e -> {
 
-
-            Genre selectedGenre = (Genre) genreComboBox.getValue();
-
+            Genre selectedGenre = genreComboBox.getValue();
 
             String searchTerm = searchField.getText().toLowerCase();
 
             Integer releaseYear = yearComboBox.getValue();
 
             Double lookupRatingFrom = ratingComboBox.getValue();
-
 
             List<Movie> filterMovies = null;
 
@@ -166,7 +153,7 @@ public class HomeController implements Initializable {
             observableMovies.addAll(filterMovies);
 
             //movieListView.setItems(observableMovies);
-            movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked())); // use custom cell factory to display data
+            movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true)); // use custom cell factory to display data
         });
 
         // Reset Button get clicked- All Filters get reseted
@@ -179,7 +166,6 @@ public class HomeController implements Initializable {
             this.sortMovies(observableMovies);
         });
     }
-
 
     public void sortMovies(ObservableList<Movie> mov) {
         if(sortBtn.getText().equals("Sort (asc)")) {
@@ -204,7 +190,7 @@ public class HomeController implements Initializable {
 
     public void reset(boolean keepValues) {
         movieListView.setItems(observableMovies);
-        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked()));
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true));
 
         //Alphabetical Sort will be reset
         observableMovies.clear();
@@ -251,12 +237,9 @@ public class HomeController implements Initializable {
 
         return filteredList;
 
-
         //movieListView.setItems(filteredList);
         //movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
     }
-
-
 
     public void setTextSortBtn(String text){
         sortBtn.setText(text);
@@ -303,31 +286,28 @@ public class HomeController implements Initializable {
                 .collect(Collectors.toList());
     }
 
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-    private Event event;
-
-
     @FXML
     private void switchToWatchlist() throws IOException {
-        observableMovies.clear();
-
-        observableMovies.addAll(watchList); //show all movies from the watchlist
+        if (watchList.isEmpty()){
+            MovieAlert.showAlert(Alert.AlertType.INFORMATION,"Hinweis", "", "Ihre Watchlist ist leer. Bitte fügen Sie Filme hinzu und versuchen Sie es erneut!");
+        } else {
+            updateListView(watchList, false);
+        }
     }
     @FXML
     private void switchToHome(ActionEvent event) throws IOException {
-        observableMovies.clear();
+        updateListView(allMovies, true);
+    }
 
-        observableMovies.addAll(allMovies); //show all movies
+    private void updateListView(List<Movie> viewContent, boolean isHomeView){
+        observableMovies.clear();
+        observableMovies.addAll(viewContent); //show all movies from the watchlist
+        movieListView.setItems(observableMovies);   // set data of observable list to list view
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), isHomeView));
     }
 
     public List<Movie> fillWatchlist(List<WatchlistMovieEntity> entities) {
         List<Movie> watchlistMovies = new ArrayList<>();
-        System.out.println(entities);
         if (!entities.isEmpty()) {
             for (WatchlistMovieEntity entity : entities) {
                 watchlistMovies.add(entity);
@@ -335,15 +315,6 @@ public class HomeController implements Initializable {
         }
         return watchlistMovies;
     }
-
-
-
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
 
     // STREAM TESTS
     public static void main(String[] args) throws IOException, SQLException, DatabaseException {
@@ -372,6 +343,4 @@ public class HomeController implements Initializable {
             System.out.println("    - " + movie.getTitle()+" in "+movie.getReleaseYear());
         }
     }
-
-
 }

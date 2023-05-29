@@ -19,17 +19,24 @@ public class Database {
     // Password for database
     private final String PASSWORD = "";
     // ConnectionSource object to manage database connections
-    public ConnectionSource connectionSource;
+    private ConnectionSource connectionSource;
     // Data access object for WatchlistMovieEntity
+    private Dao<WatchlistMovieEntity, Long> dao;
 
     private static Database instance;
-    Dao<WatchlistMovieEntity, Long> dao;
 
-    // Constructor
-    public Database() throws DatabaseException {
+    private Database() throws DatabaseException {
         // Create a connection source and create tables
         createConnectionSource();
         createTables();
+    }
+
+    // Public static method to get the singleton instance
+    public static Database getInstance() throws DatabaseException {
+        if (instance == null) {
+            instance = new Database();
+        }
+        return instance;
     }
 
     // Method to create a connection source to the database
@@ -58,5 +65,4 @@ public class Database {
             throw new DatabaseException("Error creating Table", e);
         }
     }
-
 }

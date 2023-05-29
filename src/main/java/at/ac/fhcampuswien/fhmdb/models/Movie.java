@@ -1,8 +1,9 @@
 package at.ac.fhcampuswien.fhmdb.models;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import at.ac.fhcampuswien.fhmdb.MovieAPI;
+
+import java.io.IOException;
+import java.util.*;
 
 public class Movie {
     private String id;
@@ -29,6 +30,23 @@ public class Movie {
         this.writers = writers;
         this.mainCast = mainCast;
         this.rating = rating;
+    }
+
+    public Movie(String id) throws IOException {
+        MovieAPI api = new MovieAPI();
+        Movie movie = api.getMovieById(id);
+
+        this.id = movie.id;
+        this.title = movie.title;
+        this.description = movie.description;
+        this.genres = movie.genres;
+        this.releaseYear = movie.releaseYear;
+        this.imgUrl = movie.imgUrl;
+        this.lengthInMinutes = movie.lengthInMinutes;
+        this.directors = movie.directors;
+        this.writers = movie.writers;
+        this.mainCast = movie.mainCast;
+        this.rating = movie.rating;
     }
 
     public Movie(String title, String description, List<Genre> genres) {
@@ -98,7 +116,8 @@ public class Movie {
     }
 
     public List<Genre> getGenres() {
-        return genres;
+        // Return an empty list if genres is null
+        return Objects.requireNonNullElse(genres, Collections.emptyList());
     }
 
     public void setGenres(List<Genre> genres) {
@@ -159,5 +178,22 @@ public class Movie {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", genres=" + genres +
+                ", releaseYear=" + releaseYear +
+                ", imgUrl='" + imgUrl + '\'' +
+                ", lengthInMinutes=" + lengthInMinutes +
+                ", directors=" + directors +
+                ", writers=" + writers +
+                ", mainCast=" + mainCast +
+                ", rating=" + rating +
+                '}';
     }
 }

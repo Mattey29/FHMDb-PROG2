@@ -7,8 +7,6 @@ import at.ac.fhcampuswien.fhmdb.models.Movie;
 
 import java.sql.SQLException;
 
-
-
 public class Controller {
     public interface ClickEventHandler<T> {
         void onClick(T t);
@@ -18,7 +16,7 @@ public class Controller {
     private Database database;
 
     public Controller() throws SQLException, DatabaseException {
-        database = new Database();
+        database = Database.getInstance();
         watchlistDao = new WatchlistDao();
     }
 
