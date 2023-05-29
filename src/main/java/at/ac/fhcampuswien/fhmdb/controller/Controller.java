@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
 import at.ac.fhcampuswien.fhmdb.data.Database;
-import at.ac.fhcampuswien.fhmdb.data.WatchlistDao;
+import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieAlert;
@@ -14,17 +14,15 @@ public class Controller {
         void onClick(T t);
     }
 
-    private WatchlistDao watchlistDao;
-    private Database database;
+    private final WatchlistRepository watchlistRepository = WatchlistRepository.getInstance();
 
     public Controller() throws SQLException, DatabaseException {
-        database = Database.getInstance();
-        watchlistDao = new WatchlistDao();
+        Database database = Database.getInstance();
     }
 
     private final ClickEventHandler<Movie> onAddToWatchlistClicked = (clickedItem) -> {
         try {
-            watchlistDao.addToWatchlist(clickedItem);
+            watchlistRepository.addToWatchlist(clickedItem);
         } catch (DatabaseException e) {
             MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }
@@ -32,7 +30,7 @@ public class Controller {
 
     private final ClickEventHandler<Movie> onRemoveFromWatchlistClicked = (clickedItem) -> {
         try {
-            watchlistDao.removeFromWatchlist(clickedItem);
+            watchlistRepository.removeFromWatchlist(clickedItem);
         } catch (DatabaseException e) {
             MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }

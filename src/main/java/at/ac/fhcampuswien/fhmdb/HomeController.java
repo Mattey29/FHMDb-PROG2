@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.fhmdb;
 
 import at.ac.fhcampuswien.fhmdb.controller.Controller;
-import at.ac.fhcampuswien.fhmdb.data.WatchlistDao;
+import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
@@ -63,20 +63,17 @@ public class HomeController implements Initializable {
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
     public HomeController() throws SQLException, DatabaseException {
-        try {
-            this.watchlistDao = new WatchlistDao();
-        } catch (DatabaseException e) {
-            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
-        }}
+        this.watchlistRepository = WatchlistRepository.getInstance();
+    }
     public Controller controller = new Controller();
 
-    private WatchlistDao watchlistDao;
+    private final WatchlistRepository watchlistRepository;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         observableMovies.addAll(allMovies);         // add dummy data to observable list
         try {
-            List<WatchlistMovieEntity> entityList = watchlistDao.getAll();
+            List<WatchlistMovieEntity> entityList = watchlistRepository.getAll();
             watchList = WatchlistMovieEntity.convertToMovieList(entityList);
             for (WatchlistMovieEntity movie : entityList) {
                 String movieString = movie.toString();
@@ -87,7 +84,7 @@ public class HomeController implements Initializable {
         }
 
         try {
-            fillWatchlist(watchlistDao.getAll());
+            fillWatchlist(watchlistRepository.getAll());
         } catch (DatabaseException e) {
             MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }
