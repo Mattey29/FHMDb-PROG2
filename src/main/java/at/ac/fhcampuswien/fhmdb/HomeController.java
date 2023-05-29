@@ -45,10 +45,6 @@ import javafx.event.Event;
 
 public class HomeController implements Initializable {
     @FXML
-    private JFXHamburger hamburger;
-    @FXML
-    private JFXDrawer drawer;
-    @FXML
     public JFXButton searchBtn;
     public JFXButton resetBtn;
 
@@ -68,8 +64,6 @@ public class HomeController implements Initializable {
     public JFXComboBox<Double> ratingComboBox;
 
     public static List<Movie> watchList = new ArrayList<>();
-
-
 
     @FXML
     public JFXButton sortBtn;
@@ -146,28 +140,6 @@ public class HomeController implements Initializable {
         }
 
         ratingComboBox.getItems().addAll(allRatings);
-
-        try {
-            VBox drawerContent = FXMLLoader.load(getClass().getResource("/at/ac/fhcampuswien/fhmdb/drawer_content.fxml"));
-            drawer.setSidePane(drawerContent);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        HamburgerSlideCloseTransition burgerTask = new HamburgerSlideCloseTransition(hamburger);
-        burgerTask.setRate(-1);
-        hamburger.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
-            burgerTask.setRate(burgerTask.getRate() * -1);
-            burgerTask.play();
-
-            if (drawer.isOpened()) {
-                drawer.close();
-                drawer.toBack(); // Send the drawer to the back when closed
-            } else {
-                drawer.open();
-                drawer.toFront(); // Bring the drawer to the front when opened
-            }
-        });
 
         // Search Button gets clicked - List gets filtered
         searchBtn.setOnAction(e -> {
