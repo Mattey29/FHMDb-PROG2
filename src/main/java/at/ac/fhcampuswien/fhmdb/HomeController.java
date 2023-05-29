@@ -8,15 +8,14 @@ import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.models.WatchlistMovieEntity;
 import at.ac.fhcampuswien.fhmdb.ui.MovieAlert;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
-
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
@@ -27,8 +26,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import javafx.event.Event;
 
 public class HomeController implements Initializable {
     @FXML
@@ -65,11 +62,11 @@ public class HomeController implements Initializable {
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
-    public HomeController() throws IOException, SQLException, DatabaseException {
+    public HomeController() throws SQLException, DatabaseException {
         try {
             this.watchlistDao = new WatchlistDao();
         } catch (DatabaseException e) {
-            // Hier können Sie die Ausnahme behandeln
+            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }}
     public Controller controller = new Controller();
 
@@ -86,13 +83,13 @@ public class HomeController implements Initializable {
                 System.out.println(movieString);
             }
         } catch (DatabaseException | IOException e) {
-            throw new RuntimeException(e);
+            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }
 
         try {
             fillWatchlist(watchlistDao.getAll());
         } catch (DatabaseException e) {
-            throw new RuntimeException(e);
+            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }
 
         // initialize UI stuff
@@ -104,7 +101,7 @@ public class HomeController implements Initializable {
             throw new RuntimeException(e);
         }
 
-        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true)); // use custom cell factory to display data
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true, this)); // use custom cell factory to display data
 
         searchField.setText("");
 
@@ -144,16 +141,12 @@ public class HomeController implements Initializable {
 
             List<Movie> filterMovies = null;
 
-            try {
-                filterMovies = movieAPI.getMovies(searchTerm, selectedGenre, releaseYear, lookupRatingFrom);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            filterMovies = movieAPI.getMovies(searchTerm, selectedGenre, releaseYear, lookupRatingFrom);
             observableMovies.clear();
             observableMovies.addAll(filterMovies);
 
             //movieListView.setItems(observableMovies);
-            movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true)); // use custom cell factory to display data
+            movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true, this)); // use custom cell factory to display data
         });
 
         // Reset Button get clicked- All Filters get reseted
@@ -190,7 +183,7 @@ public class HomeController implements Initializable {
 
     public void reset(boolean keepValues) {
         movieListView.setItems(observableMovies);
-        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true));
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true, this));
 
         //Alphabetical Sort will be reset
         observableMovies.clear();
@@ -287,7 +280,7 @@ public class HomeController implements Initializable {
     }
 
     @FXML
-    private void switchToWatchlist() throws IOException {
+    private void switchToWatchlist() {
         if (watchList.isEmpty()){
             MovieAlert.showAlert(Alert.AlertType.INFORMATION,"Hinweis", "", "Ihre Watchlist ist leer. Bitte fügen Sie Filme hinzu und versuchen Sie es erneut!");
         } else {
@@ -295,15 +288,15 @@ public class HomeController implements Initializable {
         }
     }
     @FXML
-    private void switchToHome(ActionEvent event) throws IOException {
+    private void switchToHome(ActionEvent event) {
         updateListView(allMovies, true);
     }
 
-    private void updateListView(List<Movie> viewContent, boolean isHomeView){
+    public void updateListView(List<Movie> viewContent, boolean isHomeView){
         observableMovies.clear();
         observableMovies.addAll(viewContent); //show all movies from the watchlist
         movieListView.setItems(observableMovies);   // set data of observable list to list view
-        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), isHomeView));
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), isHomeView, this));
     }
 
     public List<Movie> fillWatchlist(List<WatchlistMovieEntity> entities) {
@@ -317,16 +310,12 @@ public class HomeController implements Initializable {
     }
 
     // STREAM TESTS
-    public static void main(String[] args) throws IOException, SQLException, DatabaseException {
+    public static void main(String[] args) throws SQLException, DatabaseException {
         List<Movie> requestedMovies;
         MovieAPI movieAPI1 = new MovieAPI();
         HomeController homeController = new HomeController();
 
-        try {
-            requestedMovies = movieAPI1.getMovies(null, null, null, null);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        requestedMovies = movieAPI1.getMovies(null, null, null, null);
 
         String mostPopularActor = homeController.getMostPopularActor(requestedMovies);
         System.out.println("Most popular actor: " + mostPopularActor);

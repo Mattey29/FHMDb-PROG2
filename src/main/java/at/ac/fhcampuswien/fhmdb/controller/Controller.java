@@ -4,6 +4,8 @@ import at.ac.fhcampuswien.fhmdb.data.Database;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistDao;
 import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.ui.MovieAlert;
+import javafx.scene.control.Alert;
 
 import java.sql.SQLException;
 
@@ -24,7 +26,7 @@ public class Controller {
         try {
             watchlistDao.addToWatchlist(clickedItem);
         } catch (DatabaseException e) {
-            // Show error message to the user in the UI
+            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }
     };
 
@@ -32,7 +34,7 @@ public class Controller {
         try {
             watchlistDao.removeFromWatchlist(clickedItem);
         } catch (DatabaseException e) {
-            // Show error message to the user in the UI
+            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }
     };
 

@@ -1,8 +1,10 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
+import at.ac.fhcampuswien.fhmdb.HomeController;
 import at.ac.fhcampuswien.fhmdb.controller.Controller;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXListView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -24,7 +26,7 @@ public class MovieCell extends ListCell<Movie> {
     private final JFXButton removeFromWatchlistBtn = new JFXButton("Remove from Watchlist");
     private final HBox buttons = new HBox(addToWatchlistBtn, removeFromWatchlistBtn);
 
-    public MovieCell(Controller.ClickEventHandler<Movie> addToWatchlistClicked, Controller.ClickEventHandler<Movie> removeFromWatchlistClicked, boolean isHomeView) {
+    public MovieCell(Controller.ClickEventHandler<Movie> addToWatchlistClicked, Controller.ClickEventHandler<Movie> removeFromWatchlistClicked, boolean isHomeView, HomeController homeController) {
         getStylesheets().add(getClass().getResource("/at/ac/fhcampuswien/fhmdb/styles.css").toExternalForm());
 
         // Add style classes to the buttons
@@ -37,6 +39,7 @@ public class MovieCell extends ListCell<Movie> {
 
         removeFromWatchlistBtn.setOnMouseClicked(mouseEvent -> {
             removeFromWatchlistClicked.onClick(getItem());
+            homeController.updateListView(HomeController.watchList,false);
         });
 
         // Conditionally show/hide buttons based on the view type

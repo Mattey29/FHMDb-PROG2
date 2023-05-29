@@ -1,12 +1,11 @@
 package at.ac.fhcampuswien.fhmdb;
 
+import at.ac.fhcampuswien.fhmdb.exception.MovieApiException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
-
+import at.ac.fhcampuswien.fhmdb.ui.MovieAlert;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-
+import javafx.scene.control.Alert;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -33,75 +32,65 @@ public class MovieAPI {
         this.gson = new Gson();
     }
 
-    /*public static List<Movie> fetchMovies() {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(BASE_URL + "/movies")
-                .addHeader("User-Agent", "http.agent")
-                .build();
+    public List<Movie> getMovies(String lookupQuery, Genre lookupGenre, Integer lookupReleaseYear, Double lookupRatingFrom) {
+        List<Movie> movies = new ArrayList<>();
+        try{
 
-        try (Response response = client.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                String responseBody = response.body().string();
-                Gson gson = new Gson();
-                Type movieListType = new TypeToken<List<Movie>>() {}.getType();
-                List<Movie> movies = gson.fromJson(responseBody, movieListType);
-                return movies;
-            } else {
-                throw new RuntimeException("HTTP-Fehler: " + response.code());
+            HttpUrl.Builder urlBuilder = HttpUrl.parse(BASE_URL + "/movies").newBuilder();
+
+            if (lookupQuery != null && !lookupQuery.isEmpty()) {
+                urlBuilder.addQueryParameter("query", lookupQuery);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Fehler beim Abrufen der Filme", e);
+
+            if (lookupGenre != null) {
+                urlBuilder.addQueryParameter("genre", lookupGenre.name());
+            }
+
+            if (lookupReleaseYear != null) {
+                urlBuilder.addQueryParameter("releaseYear", lookupReleaseYear.toString());
+            }
+
+            if (lookupRatingFrom != null) {
+                urlBuilder.addQueryParameter("ratingFrom", lookupRatingFrom.toString());
+            }
+
+
+            String url = urlBuilder.build().toString();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("User-Agent", "http.agent")
+                    .build();
+
+            Response response = client.newCall(request).execute();
+            String responseBody = response.body().string();
+
+            Movie[] moviesArray = gson.fromJson(responseBody, Movie[].class);
+            movies = Arrays.asList(moviesArray);
+
+        } catch (IOException e){
+            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
         }
-    }*/
-
-    public List<Movie> getMovies(String lookupQuery, Genre lookupGenre, Integer lookupReleaseYear, Double lookupRatingFrom) throws IOException {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(BASE_URL + "/movies").newBuilder();
-
-        if (lookupQuery != null && !lookupQuery.isEmpty()) {
-            urlBuilder.addQueryParameter("query", lookupQuery);
-        }
-
-        if (lookupGenre != null) {
-            urlBuilder.addQueryParameter("genre", lookupGenre.name());
-        }
-
-        if (lookupReleaseYear != null) {
-            urlBuilder.addQueryParameter("releaseYear", lookupReleaseYear.toString());
-        }
-
-        if (lookupRatingFrom != null) {
-            urlBuilder.addQueryParameter("ratingFrom", lookupRatingFrom.toString());
-        }
-
-
-        String url = urlBuilder.build().toString();
-        Request request = new Request.Builder()
-                .url(url)
-                .addHeader("User-Agent", "http.agent")
-                .build();
-
-        Response response = client.newCall(request).execute();
-        String responseBody = response.body().string();
-
-        Movie[] moviesArray = gson.fromJson(responseBody, Movie[].class);
-        List<Movie> movies = Arrays.asList(moviesArray);
-
         return movies;
     }
 
 
-    public Movie getMovieById(String id) throws IOException {
-        Request request = new Request.Builder()
-                .url(BASE_URL + "/movies/" + id)
-                .header("User-Agent", "http.agent")
-                .build();
+    public Movie getMovieById(String id) {
+        Movie movie = new Movie();
+        try{
 
-        Response response = client.newCall(request).execute();
-        String responseBody = response.body().string();
+            Request request = new Request.Builder()
+                    .url(BASE_URL + "/movies/" + id)
+                    .header("User-Agent", "http.agent")
+                    .build();
 
-        Movie movie = gson.fromJson(responseBody, Movie.class);
+            Response response = client.newCall(request).execute();
+            String responseBody = response.body().string();
 
+            movie = gson.fromJson(responseBody, Movie.class);
+
+        } catch(IOException e){
+            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
+        }
         return movie;
     }
 }
