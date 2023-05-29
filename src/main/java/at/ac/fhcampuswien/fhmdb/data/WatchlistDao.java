@@ -31,7 +31,7 @@ public class WatchlistDao{
         }
     }
 
-    public void addToWatchlist(Movie movie) throws DatabaseException {
+    public boolean addToWatchlist(Movie movie) throws DatabaseException {
         WatchlistMovieEntity entity = new WatchlistMovieEntity(movie);
         if(!watchList.contains(movie)){
             watchList.add(movie);
@@ -40,7 +40,9 @@ public class WatchlistDao{
             } catch(SQLException e) {
                 MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", "Error creating Watchlist record in db.");
             }
+            return true;
         }
+        return false;
     }
 
     public void removeFromWatchlist(Movie movie) throws DatabaseException {

@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
+import at.ac.fhcampuswien.fhmdb.Observer;
 import at.ac.fhcampuswien.fhmdb.data.Database;
 import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
@@ -9,7 +10,12 @@ import javafx.scene.control.Alert;
 
 import java.sql.SQLException;
 
-public class Controller {
+public class Controller implements Observer {
+    @Override
+    public void update(String message) {
+        MovieAlert.showAlert(Alert.AlertType.INFORMATION, "Hinweis", "", message);
+    }
+
     public interface ClickEventHandler<T> {
         void onClick(T t);
     }
@@ -18,6 +24,7 @@ public class Controller {
 
     public Controller() throws SQLException, DatabaseException {
         Database database = Database.getInstance();
+        this.watchlistRepository.addObserver(this);
     }
 
     private final ClickEventHandler<Movie> onAddToWatchlistClicked = (clickedItem) -> {

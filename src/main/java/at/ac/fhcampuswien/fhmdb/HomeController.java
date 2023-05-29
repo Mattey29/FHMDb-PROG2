@@ -5,6 +5,7 @@ import at.ac.fhcampuswien.fhmdb.data.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.exception.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.models.SortingState;
 import at.ac.fhcampuswien.fhmdb.models.WatchlistMovieEntity;
 import at.ac.fhcampuswien.fhmdb.ui.MovieAlert;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
@@ -62,12 +63,14 @@ public class HomeController implements Initializable {
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
-    public HomeController() throws SQLException, DatabaseException {
+    public HomeController() {
         this.watchlistRepository = WatchlistRepository.getInstance();
     }
-    public Controller controller = new Controller();
+    public Controller controller;
 
     private final WatchlistRepository watchlistRepository;
+
+    private SortingState state = SortingState.NOT_SORTED;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -158,12 +161,14 @@ public class HomeController implements Initializable {
     }
 
     public void sortMovies(ObservableList<Movie> mov) {
-        if(sortBtn.getText().equals("Sort (asc)")) {
+        if(state == SortingState.ASCENDING) {
             // Sort observableMovies ascending
+            this.state = SortingState.DESCENDING;
             sortList(mov, true);
             sortBtn.setText("Sort (desc)");
         } else {
             // Sort observableMovies descending
+            this.state = SortingState.ASCENDING;
             sortList(mov, false);
             sortBtn.setText("Sort (asc)");
         }

@@ -36,26 +36,12 @@ public class MovieAPI {
         List<Movie> movies = new ArrayList<>();
         try{
 
-            HttpUrl.Builder urlBuilder = HttpUrl.parse(BASE_URL + "/movies").newBuilder();
-
-            if (lookupQuery != null && !lookupQuery.isEmpty()) {
-                urlBuilder.addQueryParameter("query", lookupQuery);
-            }
-
-            if (lookupGenre != null) {
-                urlBuilder.addQueryParameter("genre", lookupGenre.name());
-            }
-
-            if (lookupReleaseYear != null) {
-                urlBuilder.addQueryParameter("releaseYear", lookupReleaseYear.toString());
-            }
-
-            if (lookupRatingFrom != null) {
-                urlBuilder.addQueryParameter("ratingFrom", lookupRatingFrom.toString());
-            }
-
-
-            String url = urlBuilder.build().toString();
+            String url = new MovieAPIRequestBuilder(BASE_URL + "/movies")
+                    .query(lookupQuery)
+                    .genre(lookupGenre)
+                    .releaseYear(lookupReleaseYear)
+                    .ratingFrom(lookupRatingFrom)
+                    .build();
             Request request = new Request.Builder()
                     .url(url)
                     .addHeader("User-Agent", "http.agent")
@@ -76,10 +62,12 @@ public class MovieAPI {
 
     public Movie getMovieById(String id) {
         Movie movie = new Movie();
-        try{
+        try {
+            String url = new MovieAPIRequestBuilder(BASE_URL + "/movies/" + id)
+                    .build();
 
             Request request = new Request.Builder()
-                    .url(BASE_URL + "/movies/" + id)
+                    .url(url)
                     .header("User-Agent", "http.agent")
                     .build();
 
@@ -88,8 +76,8 @@ public class MovieAPI {
 
             movie = gson.fromJson(responseBody, Movie.class);
 
-        } catch(IOException e){
-            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
+        } catch (IOException e) {
+            MovieAlert.showAlert(Alert.AlertType.ERROR, "FEHLER", "", e.getMessage());
         }
         return movie;
     }
