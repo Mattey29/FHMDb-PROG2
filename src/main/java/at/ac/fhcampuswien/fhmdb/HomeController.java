@@ -72,9 +72,15 @@ public class HomeController implements Initializable {
 
     private SortingState state = SortingState.NOT_SORTED;
 
+    /**
+     * Wird aufgerufen, wenn der Controller initialisiert wird.
+     * Hier werden die UI-Elemente initialisiert und die Daten geladen.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        observableMovies.addAll(allMovies);         // add dummy data to observable list
+        observableMovies.addAll(allMovies);
+
+        // Versuche, die Filme aus der Watchlist-Datenbank abzurufen
         try {
             List<WatchlistMovieEntity> entityList = watchlistRepository.getAll();
             watchList = WatchlistMovieEntity.convertToMovieList(entityList);
@@ -83,26 +89,30 @@ public class HomeController implements Initializable {
                 System.out.println(movieString);
             }
         } catch (DatabaseException | IOException e) {
-            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
+            MovieAlert.showAlert(Alert.AlertType.ERROR, "FEHLER", "", e.getMessage());
         }
 
+        // Versuche, die Watchlist-Datenbank zu füllen
         try {
             fillWatchlist(watchlistRepository.getAll());
         } catch (DatabaseException e) {
-            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
+            MovieAlert.showAlert(Alert.AlertType.ERROR, "FEHLER", "", e.getMessage());
         }
 
-        // initialize UI stuff
-        movieListView.setItems(observableMovies);   // set data of observable list to list view
+        // Setze die Filme in die ListView
+        movieListView.setItems(observableMovies);
 
+        // Erstelle den Controller für die Button-Klick-Events
         try {
             this.controller = new Controller();
         } catch (SQLException | DatabaseException e) {
             throw new RuntimeException(e);
         }
 
-        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true, this)); // use custom cell factory to display data
+        // Verwende eine benutzerdefinierte Zellenfabrik für die Anzeige der Filme in der ListView
+        movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true, this));
 
+        // Initialisiere die UI-Elemente
         searchField.setText("");
 
         genreComboBox.setPromptText("Filter by Genre");
@@ -116,7 +126,6 @@ public class HomeController implements Initializable {
                 allReleaseYears.add(releaseYear);
             }
             Collections.sort(allReleaseYears);
-
         }
         yearComboBox.getItems().addAll(allReleaseYears);
 
@@ -125,73 +134,79 @@ public class HomeController implements Initializable {
         for (double i = 5.0; i < 10.0; i = i + 0.5) {
             allRatings.add(i);
         }
-
         ratingComboBox.getItems().addAll(allRatings);
 
-        // Search Button gets clicked - List gets filtered
+        // Setze die Aktion für den Suchen-Button
         searchBtn.setOnAction(e -> {
-
+            // Filtere die Filme basierend auf den ausgewählten Kriterien
             Genre selectedGenre = genreComboBox.getValue();
-
             String searchTerm = searchField.getText().toLowerCase();
-
             Integer releaseYear = yearComboBox.getValue();
-
             Double lookupRatingFrom = ratingComboBox.getValue();
-
             List<Movie> filterMovies = null;
-
             filterMovies = movieAPI.getMovies(searchTerm, selectedGenre, releaseYear, lookupRatingFrom);
             observableMovies.clear();
             observableMovies.addAll(filterMovies);
-
-            //movieListView.setItems(observableMovies);
-            movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true, this)); // use custom cell factory to display data
+            movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true, this));
         });
 
-        // Reset Button get clicked- All Filters get reseted
+        // Setze die Aktion für den Zurücksetzen-Button
         resetBtn.setOnAction(e -> {
+            // Setze alle Filter zurück
             this.reset(false);
         });
 
-        // Sort button example:
+        // Setze die Aktion für den Sortieren-Button
         sortBtn.setOnAction(actionEvent -> {
             this.sortMovies(observableMovies);
         });
     }
 
+    /**
+     * Sortiert die Filme in der ListView.
+     */
     public void sortMovies(ObservableList<Movie> mov) {
-        if(state == SortingState.ASCENDING) {
-            // Sort observableMovies ascending
+        if (state == SortingState.ASCENDING) {
+            // Sortiere die Filme aufsteigend
             this.state = SortingState.DESCENDING;
             sortList(mov, true);
             sortBtn.setText("Sort (desc)");
         } else {
-            // Sort observableMovies descending
+            // Sortiere die Filme absteigend
             this.state = SortingState.ASCENDING;
             sortList(mov, false);
             sortBtn.setText("Sort (asc)");
         }
     }
 
-    public void sortList(ObservableList<Movie> mov, boolean ascendedOrder){
-        if (ascendedOrder){
+
+    /**
+     * Sortiert die Liste der Filme.
+     */
+    public void sortList(ObservableList<Movie> mov, boolean ascendingOrder) {
+        if (ascendingOrder) {
+            // Sortiere aufsteigend
             FXCollections.sort(mov, (m1, m2) -> m1.getTitle().compareToIgnoreCase(m2.getTitle()));
-        }else {
+        } else {
+            // Sortiere absteigend
             FXCollections.sort(mov, (m1, m2) -> m2.getTitle().compareToIgnoreCase(m1.getTitle()));
         }
-
     }
 
+    /**
+     * Setzt die Filter zurück und zeigt alle Filme an.
+     */
     public void reset(boolean keepValues) {
+        // Setze die ListView auf alle Filme zurück
         movieListView.setItems(observableMovies);
         movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), true, this));
 
-        //Alphabetical Sort will be reset
+        // Setze die Alphabetische Sortierung zurück
         observableMovies.clear();
         observableMovies.addAll(allMovies);
 
-        if(!keepValues){
+        // Setze die Filter zurück
+        if (!keepValues) {
             genreComboBox.setValue(null);
             yearComboBox.setValue(null);
             ratingComboBox.setValue(null);
@@ -281,26 +296,41 @@ public class HomeController implements Initializable {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Wird aufgerufen, wenn auf den "Watchlist" Button geklickt wird.
+     * Wechselt zur Ansicht der Watchlist, falls vorhanden, andernfalls wird eine Information angezeigt.
+     */
     @FXML
     private void switchToWatchlist() {
-        if (watchList.isEmpty()){
-            MovieAlert.showAlert(Alert.AlertType.INFORMATION,"Hinweis", "", "Ihre Watchlist ist leer. Bitte fügen Sie Filme hinzu und versuchen Sie es erneut!");
+        if (watchList.isEmpty()) {
+            MovieAlert.showAlert(Alert.AlertType.INFORMATION, "Hinweis", "", "Ihre Watchlist ist leer. Bitte fügen Sie Filme hinzu und versuchen Sie es erneut!");
         } else {
             updateListView(watchList, false);
         }
     }
+
+    /**
+     * Wird aufgerufen, wenn auf den "Home" Button geklickt wird.
+     * Wechselt zur Hauptansicht und zeigt alle Filme an.
+     */
     @FXML
     private void switchToHome(ActionEvent event) {
         updateListView(allMovies, true);
     }
 
-    public void updateListView(List<Movie> viewContent, boolean isHomeView){
+    /**
+     * Aktualisiert die ListView mit den gegebenen Filmen.
+     */
+    public void updateListView(List<Movie> viewContent, boolean isHomeView) {
         observableMovies.clear();
-        observableMovies.addAll(viewContent); //show all movies from the watchlist
-        movieListView.setItems(observableMovies);   // set data of observable list to list view
+        observableMovies.addAll(viewContent);
+        movieListView.setItems(observableMovies);
         movieListView.setCellFactory(movieListView -> new MovieCell(controller.getOnAddToWatchlistClicked(), controller.getOnRemoveFromWatchlistClicked(), isHomeView, this));
     }
 
+    /**
+     * Füllt die Watchlist mit den gegebenen WatchlistMovieEntity-Objekten.
+     */
     public List<Movie> fillWatchlist(List<WatchlistMovieEntity> entities) {
         List<Movie> watchlistMovies = new ArrayList<>();
         if (!entities.isEmpty()) {

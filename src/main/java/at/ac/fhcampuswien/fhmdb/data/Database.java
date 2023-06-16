@@ -9,29 +9,33 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 
+/**
+ * Die Klasse Database verwaltet die Datenbankverbindung und die Erstellung der Tabellen.
+ * Sie implementiert das Singleton-Muster, um sicherzustellen, dass nur eine Instanz der Datenbank vorhanden ist.
+ */
 public class Database {
-    // Database URL for H2 local file database
+    // Datenbank-URL für die H2-Dateidatenbank
     public final String DB_URL = "jdbc:h2:file:./watchlist";
-    // JDBC driver class for H2 database
+    // JDBC-Treiberklasse für die H2-Datenbank
     static final String JDBC_DRIVER = "org.h2.Driver";
-    // Username for database
+    // Benutzername für die Datenbank
     private final String USER = "sa";
-    // Password for database
+    // Passwort für die Datenbank
     private final String PASSWORD = "";
-    // ConnectionSource object to manage database connections
+    // ConnectionSource-Objekt zum Verwalten der Datenbankverbindungen
     private ConnectionSource connectionSource;
-    // Data access object for WatchlistMovieEntity
+    // Datenzugriffsobjekt für WatchlistMovieEntity
     private Dao<WatchlistMovieEntity, Long> dao;
 
     private static Database instance;
 
     private Database() throws DatabaseException {
-        // Create a connection source and create tables
+        // Erzeuge eine ConnectionSource und erstelle die Tabellen
         createConnectionSource();
         createTables();
     }
 
-    // Public static method to get the singleton instance
+    // Öffentliche statische Methode zum Abrufen der Singleton-Instanz
     public static Database getInstance() throws DatabaseException {
         if (instance == null) {
             instance = new Database();
@@ -39,30 +43,30 @@ public class Database {
         return instance;
     }
 
-    // Method to create a connection source to the database
+    // Methode zum Erstellen einer ConnectionSource zur Datenbank
     private void createConnectionSource() throws DatabaseException {
         try {
-            // Initialize connection source with database URL, username, and password
+            // Initialisiere die ConnectionSource mit Datenbank-URL, Benutzername und Passwort
             this.connectionSource = new JdbcConnectionSource(DB_URL, USER, PASSWORD);
         } catch (SQLException e) {
-            // Handle SQLException and throw custom DatabaseException
-            throw new DatabaseException("Error creating ConnectionSource", e);
+            // Behandle SQLException und werfe eine benutzerdefinierte DatabaseException
+            throw new DatabaseException("Fehler beim Erstellen der ConnectionSource", e);
         }
     }
 
-    // Getter for the ConnectionSource object
+    // Getter für das ConnectionSource-Objekt
     public ConnectionSource getConnectionSource() {
         return connectionSource;
     }
 
-    // Method to create tables if they do not already exist
+    // Methode zum Erstellen der Tabellen, falls sie noch nicht vorhanden sind
     public void createTables() throws DatabaseException {
         try {
-            // Create table for WatchlistMovieEntity if it does not exist
+            // Erstelle die Tabelle für WatchlistMovieEntity, falls sie nicht vorhanden ist
             TableUtils.createTableIfNotExists(connectionSource, WatchlistMovieEntity.class);
         } catch (SQLException e) {
-            // Handle SQLException and throw custom DatabaseException
-            throw new DatabaseException("Error creating Table", e);
+            // Behandle SQLException und werfe eine benutzerdefinierte DatabaseException
+            throw new DatabaseException("Fehler beim Erstellen der Tabelle", e);
         }
     }
 }

@@ -1,12 +1,10 @@
 package at.ac.fhcampuswien.fhmdb;
 
-import at.ac.fhcampuswien.fhmdb.exception.MovieApiException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieAlert;
 import com.google.gson.Gson;
 import javafx.scene.control.Alert;
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -19,10 +17,10 @@ import java.util.List;
 
 public class MovieAPI {
     // Live URL
-    private static final String BASE_URL = " https://prog2.fh-campuswien.ac.at";
+    private static final String BASE_URL = "https://prog2.fh-campuswien.ac.at";
 
-    //Work Around API
-    //private static final String BASE_URL = "http://localhost:8080";
+    // Workaround API
+    // private static final String BASE_URL = "http://localhost:8080";
 
     private OkHttpClient client;
     private Gson gson;
@@ -32,10 +30,12 @@ public class MovieAPI {
         this.gson = new Gson();
     }
 
+    /**
+     * Ruft eine Liste von Filmen von der API ab, basierend auf den angegebenen Suchparametern.
+     */
     public List<Movie> getMovies(String lookupQuery, Genre lookupGenre, Integer lookupReleaseYear, Double lookupRatingFrom) {
         List<Movie> movies = new ArrayList<>();
-        try{
-
+        try {
             String url = new MovieAPIRequestBuilder(BASE_URL + "/movies")
                     .query(lookupQuery)
                     .genre(lookupGenre)
@@ -53,13 +53,15 @@ public class MovieAPI {
             Movie[] moviesArray = gson.fromJson(responseBody, Movie[].class);
             movies = Arrays.asList(moviesArray);
 
-        } catch (IOException e){
-            MovieAlert.showAlert(Alert.AlertType.ERROR,"FEHLER","", e.getMessage());
+        } catch (IOException e) {
+            MovieAlert.showAlert(Alert.AlertType.ERROR, "FEHLER", "", e.getMessage());
         }
         return movies;
     }
 
-
+    /**
+     * Ruft einen Film von der API anhand der angegebenen ID ab.
+     */
     public Movie getMovieById(String id) {
         Movie movie = new Movie();
         try {
